@@ -37,7 +37,7 @@ function startGame() {
         CENTER_GIF.src = EMPTY_LIST_GIF;
     } else {
         const interval = setInterval(() => {
-            const success = Math.random() < 0.5;
+            const success = Math.random() < 0.1;
             if (success) {
                 CENTER_GIF.src = SUCCESS_GIF; 
                 clearInterval(interval);
