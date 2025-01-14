@@ -26,15 +26,8 @@ async function getMemes() {
 }
 
 async function fetchData() {
-    const apiUrl = import.meta.env.MEME_CAST_BD_API_URL;
-  
-    if (!apiUrl) {
-      console.error("La variable MEME_CAST_BD_API_URL no está configurada.");
-      return null;
-    }
-  
     try {
-      const response = await fetch(`${apiUrl}/api/get-memes`, {
+      const response = await fetch("https://meme-list-api.stefanomazzuka.workers.dev//api/get-memes", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
