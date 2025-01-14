@@ -1,24 +1,19 @@
-async function setScore(id, newScore) {
-    const apiUrl = import.meta.env.WORKER_API_URL || "/api";
+async function setScore(id, score) {
+    const apiUrl = import.meta.env.WORKER_API_URL || "/api/set-score"; // Usa variable de entorno o ruta relativa
   
     try {
-      const response = await fetch(`${apiUrl}/set-score`, {
+      const response = await fetch(apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          score: newScore,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, score }),
       });
   
       if (!response.ok) {
-        throw new Error("Error al actualizar el score");
+        throw new Error("Error setting score: " + response.statusText);
       }
   
-      console.log("Score actualizado correctamente");
+      console.log("Score updated successfully for meme ID:", id);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error in setScore:", error);
     }
   }

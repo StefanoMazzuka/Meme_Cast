@@ -85,6 +85,7 @@ BACK_BUTTON.addEventListener('click', () => {
 window.onload = async () => {
     CENTER_GIF.src = FAIL_GIF;
     //await loadURLs();
-    await loadMemes();
+    await getMemes();
+    console.log("Loaded memes:", memes);
     startGame();
 };
