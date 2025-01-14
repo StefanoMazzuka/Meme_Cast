@@ -30,7 +30,7 @@ async function loadMemes() {
         throw new Error('Error al cargar los memes');
       }
       const memes = await response.json();
-      console.log(memes); // Procesar los memes aquí
+      console.log("HERE", memes); // Procesar los memes aquí
     } catch (error) {
       console.error('Error:', error);
     }
@@ -85,6 +85,6 @@ BACK_BUTTON.addEventListener('click', () => {
 window.onload = async () => {
     CENTER_GIF.src = FAIL_GIF;
     //await loadURLs();
-    loadMemes();
+    await loadMemes();
     startGame();
 };
