@@ -25,6 +25,33 @@ async function getMemes() {
     }
 }
 
+async function fetchData() {
+    const apiUrl = import.meta.env.MEME_CAST_BD_API_URL;
+  
+    if (!apiUrl) {
+      console.error("La variable MEME_CAST_BD_API_URL no está configurada.");
+      return null;
+    }
+  
+    try {
+      const response = await fetch(`${apiUrl}/api/get-memes`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("Datos recibidos:", data);
+      return data;
+    } catch (error) {
+      console.error("Error al hacer la solicitud:", error);
+      return null;
+    }
+  }
+
 function getNextMeme() {
     if (meme_list.length === 0) {
         alert('No quedan más Memes.');
@@ -74,7 +101,7 @@ BACK_BUTTON.addEventListener('click', () => {
 window.onload = async () => {
     CENTER_GIF.src = FAIL_GIF;
     //await loadURLs();
-    const memes = await getMemes();
+    const memes = await fetchData();
     console.log("Loaded memes:", memes);
     //startGame();
 };
