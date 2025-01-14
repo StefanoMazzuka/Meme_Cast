@@ -10,6 +10,7 @@ const FAIL_GIF       = 'bad_shot.gif';
 
 let meme_list = [];
 
+/*
 async function loadURLs() {
     try {
         const response = await fetch('memes');
@@ -18,6 +19,20 @@ async function loadURLs() {
         meme_list = text.split('\n').filter(url => url.trim() !== '');
     } catch (error) {
         console.error('ERROR: <loadURLs>', error);
+    }
+}
+*/
+async function loadMemes() {
+    const apiUrl = "/api/get-memes"; // Ruta relativa
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error('Error al cargar los memes');
+      }
+      const memes = await response.json();
+      console.log(memes); // Procesar los memes aquí
+    } catch (error) {
+      console.error('Error:', error);
     }
 }
 
@@ -69,6 +84,7 @@ BACK_BUTTON.addEventListener('click', () => {
 // Start game
 window.onload = async () => {
     CENTER_GIF.src = FAIL_GIF;
-    await loadURLs();
+    //await loadURLs();
+    loadMemes();
     startGame();
 };
