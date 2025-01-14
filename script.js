@@ -24,23 +24,31 @@ async function loadURLs() {
 */
 
 async function getMemes() {
-    const apiUrl = "/api/get-memes"; // Ruta relativa
     try {
-        const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+        const apiUrl = import.meta.env.WORKER_API_URL;
+
+        // Realiza la llamada GET
+        const response = await fetch(apiUrl + "/api/get-memes", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json", // Tipo de contenido esperado
+            },
         });
-
+    
+        // Verifica si la respuesta es correcta
         if (!response.ok) {
-        throw new Error("Error fetching memes: " + response.statusText);
+           throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
         }
-
-        const memes = await response.json();
-        console.log("Memes retrieved:", memes);
-        return memes; // Devuelve los memes como un array
+    
+        // Convierte la respuesta en JSON
+        const data = await response.json();
+        console.log("Datos recibidos:", data);
+    
+        // Retorna los datos para procesarlos
+        return data;
     } catch (error) {
-        console.error("Error in getMemes:", error);
-        return [];
+        console.error("Error al realizar la solicitud:", error);
+        return null;
     }
 }
 
