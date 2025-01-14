@@ -23,6 +23,47 @@ async function loadURLs() {
 }
 */
 
+async function getMemes() {
+    const apiUrl = "/api/get-memes"; // Ruta relativa
+    try {
+        const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+        throw new Error("Error fetching memes: " + response.statusText);
+        }
+
+        const memes = await response.json();
+        console.log("Memes retrieved:", memes);
+        return memes; // Devuelve los memes como un array
+    } catch (error) {
+        console.error("Error in getMemes:", error);
+        return [];
+    }
+}
+
+// Función para actualizar el score de un meme
+async function setScore(id, score) {
+    const apiUrl = "/api/set-score"; // Ruta relativa
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, score }),
+        });
+  
+        if (!response.ok) {
+                throw new Error("Error setting score: " + response.statusText);
+        }
+  
+        console.log("Score updated successfully for meme ID:", id);
+    } catch (error) {
+        console.error("Error in setScore:", error);
+    }
+}
+
 function getNextMeme() {
     if (meme_list.length === 0) {
         alert('No quedan más Memes.');

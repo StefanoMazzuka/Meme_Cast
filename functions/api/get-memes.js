@@ -1,21 +1,12 @@
-async function getMemes() {
-    const apiUrl = import.meta.env.WORKER_API_URL || "/api/get-memes"; // Usa variable de entorno o ruta relativa
-  
+export async function onRequest({ env }) {
     try {
-      const response = await fetch(apiUrl, {
-        method: "GET",
+      const stmt = env.D1.prepare("SELECT * FROM meme_list;");
+      const results = await stmt.all();
+      return new Response(JSON.stringify(results), {
         headers: { "Content-Type": "application/json" },
       });
-  
-      if (!response.ok) {
-        throw new Error("Error fetching memes: " + response.statusText);
-      }
-  
-      const memes = await response.json();
-      console.log("Memes retrieved:", memes);
-      return memes; // Retorna los memes como un array
     } catch (error) {
-      console.error("Error in getMemes:", error);
-      return [];
+      console.error("Error fetching memes:", error);
+      return new Response("Error fetching memes", { status: 500 });
     }
   }
