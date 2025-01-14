@@ -14,6 +14,7 @@ async function getMemes() {
     try {
       const response = await fetch('/api/memes'); // Endpoint del Worker
       if (!response.ok) {
+        console.log("Error fetching memes");
         throw new Error("Error fetching memes");
       }
       const memes = await response.json();
