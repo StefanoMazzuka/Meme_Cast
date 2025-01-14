@@ -10,65 +10,17 @@ const FAIL_GIF       = 'bad_shot.gif';
 
 let meme_list = [];
 
-/*
-async function loadURLs() {
-    try {
-        const response = await fetch('memes');
-        const text     = await response.text();
-
-        meme_list = text.split('\n').filter(url => url.trim() !== '');
-    } catch (error) {
-        console.error('ERROR: <loadURLs>', error);
-    }
-}
-*/
-
 async function getMemes() {
     try {
-        const apiUrl = import.meta.env.WORKER_API_URL;
-
-        // Realiza la llamada GET
-        const response = await fetch(apiUrl + "/api/get-memes", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json", // Tipo de contenido esperado
-            },
-        });
-    
-        // Verifica si la respuesta es correcta
-        if (!response.ok) {
-           throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
-        }
-    
-        // Convierte la respuesta en JSON
-        const data = await response.json();
-        console.log("Datos recibidos:", data);
-    
-        // Retorna los datos para procesarlos
-        return data;
+      const response = await fetch('/api/memes'); // Endpoint del Worker
+      if (!response.ok) {
+        throw new Error("Error fetching memes");
+      }
+      const memes = await response.json();
+      console.log("Memes:", memes);
+      return memes;
     } catch (error) {
-        console.error("Error al realizar la solicitud:", error);
-        return null;
-    }
-}
-
-// Función para actualizar el score de un meme
-async function setScore(id, score) {
-    const apiUrl = "/api/set-score"; // Ruta relativa
-    try {
-        const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, score }),
-        });
-  
-        if (!response.ok) {
-                throw new Error("Error setting score: " + response.statusText);
-        }
-  
-        console.log("Score updated successfully for meme ID:", id);
-    } catch (error) {
-        console.error("Error in setScore:", error);
+      console.error(error);
     }
 }
 
@@ -121,7 +73,7 @@ BACK_BUTTON.addEventListener('click', () => {
 window.onload = async () => {
     CENTER_GIF.src = FAIL_GIF;
     //await loadURLs();
-    await getMemes();
+    const memes = await getMemes();
     console.log("Loaded memes:", memes);
-    startGame();
+    //startGame();
 };
