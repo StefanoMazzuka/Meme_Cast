@@ -22,19 +22,6 @@ async function loadURLs() {
     }
 }
 */
-async function loadMemes() {
-    const apiUrl = "/api/get-memes"; // Ruta relativa
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error('Error al cargar los memes');
-      }
-      const memes = await response.json();
-      console.log("HERE", memes); // Procesar los memes aquí
-    } catch (error) {
-      console.error('Error:', error);
-    }
-}
 
 function getNextMeme() {
     if (meme_list.length === 0) {
