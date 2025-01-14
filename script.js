@@ -20,7 +20,7 @@ async function getMemes() {
       console.log("Memes:", memes);
       return memes;
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
 }
 
