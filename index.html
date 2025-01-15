@@ -4,21 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MemeCast</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <!-- Game Screen -->
     <div id="game_screen">
-        <div class="message">El muñeco está lanzando bolas...</div>
+        <div class="message">¡Encuentra los mejores memes!</div>
         <img id="center_gif" src="" alt="Center Animation">
     </div>
 
-    <!-- Iframe Container -->
-    <div id="iframe_container">
-        <iframe id="iframe" src=""></iframe>
-        <button id="back_button">Volver</button>
+    <!-- Meme Container -->
+    <div id="meme_container" style="display: none;">
+        <p id="meme_id" class="meme-id">Meme ID: </p>
+        <button id="meme_button" class="meme-button">
+            <img src="https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/meme.png" alt="Treasure Chest">
+        </button>
+        <div id="rating_container" class="rating-container">
+            <span class="star" data-score="1">★</span>
+            <span class="star" data-score="2">★</span>
+            <span class="star" data-score="3">★</span>
+            <span class="star" data-score="4">★</span>
+            <span class="star" data-score="5">★</span>
+        </div>
+        <button id="back_button" class="back-button">Volver</button>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Final Screen -->
+    <div id="final_screen" style="display: none;">
+        <h2>Resumen de Memes</h2>
+        <div id="meme_list_container"></div>
+        <button id="restart_button" class="restart-button">Reiniciar</button>
+    </div>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>

@@ -8,16 +8,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
-#game_screen, #iframe_container {
+#game_screen {
     display: none;
     flex-direction: column;
     align-items: center;
-}
-
-iframe {
-    border: 1px solid #ccc;
-    width: 80%;
-    height: 60vh;
 }
 
 .message {
@@ -43,4 +37,123 @@ button:hover {
 img {
     max-width: 100%;
     height: auto;
+}
+
+#meme_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#meme_id {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.meme-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.meme-button img {
+    width: 100px;
+    height: auto;
+    transition: transform 0.2s ease-in-out;
+}
+
+.meme-button img:hover {
+    transform: scale(1.1);
+}
+
+.rating-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.star {
+    font-size: 2em;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.star:hover,
+.star.selected {
+    color: #ffd700; /* Amarillo para estrellas seleccionadas */
+}
+
+.star:hover ~ .star {
+    color: #ccc; /* Restaura el color de las estrellas no seleccionadas al pasar el ratón */
+}
+
+#final_screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#final_screen h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+#meme_list_container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.meme-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.meme-item img {
+    width: 50px;
+    height: 50px;
+}
+
+.meme-item .meme-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-left: 10px;
+}
+
+.meme-item .meme-info a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.meme-item .meme-info a:hover {
+    text-decoration: underline;
+}
+
+.restart-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.restart-button:hover {
+    background-color: #218838;
 }
