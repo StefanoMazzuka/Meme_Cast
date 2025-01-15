@@ -7,56 +7,69 @@ export default {
         const body = await request.json();
 
         if (body.message) {
-          const chatId = body.message.chat.id;
+          const chat_id    = body.message.chat.id;
+          const user_id    = body.message.from.id;
+          const username   = body.message.from.username || "No username";
+          const first_name = body.message.from.first_name || "No first name";
+          const last_name  = body.message.from.last_name || "No last name";
 
           // Verificar si el mensaje proviene del chat permitido
-          if (chatId.toString() !== CHAT_ID) {
-            await sendTelegramMessage(BOT_TOKEN, chatId, "Unauthorized: you are not a MemeCast member");
-            console.log(`Unauthorized access from chat ID: ${chatId}`);
-            return new Response("Unauthorized", { status: 403 });
+          if (chat_id.toString() !== CHAT_ID) {
+            console.log(`Unauthorized access from User ID: ${user_id}, Username: ${username}, Name: ${first_name} ${last_name}`);
+            await sendTelegramMessage(BOT_TOKEN, chat_id, "Unauthorized: your are not a MemeCast member");
+            return new Response("Unauthorized", { status: 200 });
           }
 
           const text = body.message.text ? body.message.text.trim() : null;
 
           if (text === "/options") {
             // Enviar botones de opciones
-            await sendOptionsButtons(BOT_TOKEN, chatId);
+            await sendOptionsButtons(BOT_TOKEN, chat_id);
           } else if (isValidUrl(text)) {
             // Guardar URL pendiente con un ID y enviar botones
-            const id = await savePendingUrl(D1, chatId, text);
-            await sendTelegramMessageWithButtons(BOT_TOKEN, chatId, `Wanna save this meme?`, id);
+            const id = await savePendingUrl(D1, chat_id, text);
+            await sendConfirmMessageButtons(BOT_TOKEN, chat_id, "Wanna save this meme?", id);
           } else {
-            await sendTelegramMessage(BOT_TOKEN, chatId, "Please send a valid meme URL");
+            await sendTelegramMessage(BOT_TOKEN, chat_id, "Please send a valid meme URL");
           }
         } else if (body.callback_query) {
-          const chatId = body.callback_query.message.chat.id;
+          const chat_id = body.callback_query.message.chat.id;
 
           // Verificar si el mensaje proviene del chat permitido
-          if (chatId.toString() !== CHAT_ID) {
-            await sendTelegramMessage(BOT_TOKEN, chatId, "Unauthorized: you are not a MemeCast member");
-            console.log(`Unauthorized callback from chat ID: ${chatId}`);
-            return new Response("Unauthorized", { status: 403 });
+          if (chat_id.toString() !== CHAT_ID) {
+            console.log(`Unauthorized access from User ID: ${user_id}, Username: ${username}, Name: ${first_name} ${last_name}`);
+            await sendTelegramMessage(BOT_TOKEN, chat_id, "Unauthorized: your are not a MemeCast member");
+            return new Response("Unauthorized", { status: 200 });
           }
 
           const callbackData = body.callback_query.data;
 
           if (callbackData === "get_memes_db") {
             // Mostrar confirmación para eliminar
-            await getMemes(D1);
-          } else if (callbackData === "delete_memes_db") {
+            const memes = await getMemes(D1);
+            await sendMemeList(BOT_TOKEN, chat_id, memes);
+          } else if (callbackData.startsWith("delete:")) {
+            const meme_id = callbackData.split(":")[1];
+            const success = await deleteMemeById(D1, meme_id);
+            if (success) {
+              await sendTelegramMessage(BOT_TOKEN, chat_id, `Meme with ID ${meme_id} deleted successfully`);
+            } else {
+              await sendTelegramMessage(BOT_TOKEN, chat_id, `Failed to delete meme with ID ${meme_id}`);
+            }
+          } else if (callbackData === "clear_memes_db") {
             // Mostrar confirmación para eliminar
-            await sendDeleteMemesButtons(BOT_TOKEN, chatId);
-          } if (callbackData === "ok_delete") {
+            await sendClearMemesButtons(BOT_TOKEN, chat_id);
+          } if (callbackData === "ok_clear") {
             // Confirmar eliminación
             await deleteDatabase(D1);
-            await sendTelegramMessage(BOT_TOKEN, chatId, "Database has been cleared");
-          } else if (callbackData === "cancel_delete") {
+            await sendTelegramMessage(BOT_TOKEN, chat_id, "Database has been cleared");
+          } else if (callbackData === "cancel_clear") {
             // Cancelar eliminación
-            await sendTelegramMessage(BOT_TOKEN, chatId, "Database deletion canceled");
+            await sendTelegramMessage(BOT_TOKEN, chat_id, "Database deletion canceled");
           } else {
             // Procesar otras acciones del botón
-            const responseText = await handleCallbackQuery(D1, callbackData);
-            await sendTelegramMessage(BOT_TOKEN, chatId, responseText);
+            const response_text = await handleCallbackQuery(D1, callbackData);
+            await sendTelegramMessage(BOT_TOKEN, chat_id, response_text);
           }
         }
 
@@ -67,27 +80,27 @@ export default {
       }
     }
 
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("Method not allowed", { status: 200 });
   },
 };
 
 // Enviar botones de opciones
-async function sendOptionsButtons(botToken, chatId) {
+async function sendOptionsButtons(bot_token, chat_id) {
   const optionsKeyboard = {
     inline_keyboard: [
       [
         { text: "Show Meme list", callback_data: "get_memes_db" },
-        { text: "Delete Meme list", callback_data: "delete_memes_db" }
+        { text: "Clear Meme list", callback_data: "clear_memes_db" }
       ],
     ],
   };
 
-  const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const apiUrl = `https://api.telegram.org/bot${bot_token}/sendMessage`;
   await fetch(apiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: chatId,
+      chat_id: chat_id,
       text: "Choose an option:",
       reply_markup: optionsKeyboard,
     }),
@@ -95,22 +108,22 @@ async function sendOptionsButtons(botToken, chatId) {
 }
 
 // Enviar botones de confirmación
-async function sendDeleteMemesButtons(botToken, chatId) {
+async function sendClearMemesButtons(bot_token, chat_id) {
   const confirmKeyboard = {
     inline_keyboard: [
       [
-        { text: "Ok", callback_data: "ok_delete" },
-        { text: "Cancel", callback_data: "cancel_delete" }
+        { text: "Ok", callback_data: "ok_clear" },
+        { text: "Cancel", callback_data: "cancel_clear" }
       ],
     ],
   };
 
-  const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const apiUrl = `https://api.telegram.org/bot${bot_token}/sendMessage`;
   await fetch(apiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: chatId,
+      chat_id: chat_id,
       text: "Are you sure you want to delete the database?",
       reply_markup: confirmKeyboard,
     }),
@@ -120,11 +133,55 @@ async function sendDeleteMemesButtons(botToken, chatId) {
 // Eliminar base de datos
 async function getMemes(d1) {
   try {
-    const stmt   = d1.prepare("SELECT FROM meme_list;"); // REVISAR
-    const result = await stmt.bind(id).first();
-    return result ? result.url : null;
+    const stmt   = d1.prepare("SELECT id, url FROM meme_list;");
+    const result = await stmt.all();
+    return result.results || [];
   } catch (error) {
     console.error("ERROR: <getMemes>", error);
+    return [];
+  }
+}
+
+// Enviar lista de memes con botones de eliminación
+async function sendMemeList(bot_token, chat_id, memes) {
+  try {
+    if (memes.length === 0) {
+      await sendTelegramMessage(bot_token, chat_id, "Meme list is empty");
+      return;
+    }
+    
+    for (const meme of memes) {
+      const delete_button = {
+        inline_keyboard: [
+          [{ text: "Delete", callback_data: `delete:${meme.id}` }],
+        ],
+      };
+
+      const apiUrl = `https://api.telegram.org/bot${bot_token}/sendMessage`;
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: `Meme URL: ${meme.url}`,
+          reply_markup: delete_button,
+        }),
+      });
+    }
+  } catch (error) {
+    console.error("ERROR: <sendMemeList>", error);
+  }
+}
+
+// Manejar eliminación de memes individuales desde callback_query
+async function deleteMemeById(d1, id) {
+  try {
+    const stmt = d1.prepare("DELETE FROM meme_list WHERE id = ?;");
+    await stmt.bind(id).run();
+    return true;
+  } catch (error) {
+    console.error("ERROR: <deleteMemeById>", error);
+    return false;
   }
 }
 
@@ -140,7 +197,7 @@ async function deleteDatabase(d1) {
 }
 
 // Función para enviar mensaje con botones
-async function sendTelegramMessageWithButtons(botToken, chatId, text, id) {
+async function sendConfirmMessageButtons(bot_token, chat_id, text, id) {
   const urlKeyboard = {
     inline_keyboard: [
       [
@@ -151,12 +208,12 @@ async function sendTelegramMessageWithButtons(botToken, chatId, text, id) {
   };
 
   try {
-    const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const apiUrl = `https://api.telegram.org/bot${bot_token}/sendMessage`;
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id: chatId,
+        chat_id: chat_id,
         text: text,
         reply_markup: urlKeyboard,
       }),
@@ -193,11 +250,11 @@ function generateUUID() {
 }
 
 // Guardar URL pendiente con un ID en la base de datos
-async function savePendingUrl(d1, chatId, url) {
+async function savePendingUrl(d1, chat_id, url) {
   try {
     const id = generateUUID(); // Genera un identificador único
     const stmt = d1.prepare("INSERT OR REPLACE INTO pending_memes (id, chat_id, url) VALUES (?, ?, ?);");
-    await stmt.bind(id, chatId, url).run();
+    await stmt.bind(id, chat_id, url).run();
     console.log("URL saved with ID:", id);
     return id;
   } catch (error) {
@@ -267,18 +324,18 @@ async function saveUrlToDatabase(d1, url) {
 }
 
 // Enviar mensaje simple de texto
-async function sendTelegramMessage(botToken, chatId, text) {
-  const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+async function sendTelegramMessage(bot_token, chat_id, text) {
+  const apiUrl = `https://api.telegram.org/bot${bot_token}/sendMessage`;
   const response = await fetch(apiUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: chatId,
+      chat_id: chat_id,
       text: text,
     }),
   });
 
   if (!response.ok) {
-    console.error("EROR: <sendTelegramMessage>", await response.text());
+    console.error("ERROR: <sendTelegramMessage>", await response.text());
   }
 }
