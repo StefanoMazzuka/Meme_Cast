@@ -12,6 +12,7 @@ const RESTART_BUTTON      = document.getElementById('restart_button');
 
 const SUCCESS_GIF = 'https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/good_shot.gif';
 const FAIL_GIF    = 'https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/bad_shot.gif';
+const WAITING_GIF = 'https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/waiting.gif';
 
 let memes        = new Map();
 let meme_list    = [];
@@ -137,7 +138,7 @@ async function showFinalScreen() {
             <div class="meme-info">
                 <p>ID: ${id}</p>
                 <a href="${url}" target="_blank">
-                    <img src="https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/meme.png" alt="Cofre">
+                    <img src="https://raw.githubusercontent.com/StefanoMazzuka/Meme_Cast/main/meme_chest.gif" alt="Cofre">
                 </a>
                 <p>Puntuación: ${score || 0} <span class="score-star">★</span></p>
             </div>
